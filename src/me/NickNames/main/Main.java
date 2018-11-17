@@ -40,7 +40,7 @@ public class Main extends JavaPlugin {
 			Player player = (Player) sender;
 
 			if (args[0].equalsIgnoreCase("off")) {
-				setNickName(player, null);
+				removeNickName(player);
 				sender.sendMessage(nickNameDisabled);
 			} else {
 				setNickName(player, args[0]);
@@ -56,7 +56,7 @@ public class Main extends JavaPlugin {
 			}
 
 			if (args[1].equals("off")) {
-				setNickName(player, null);
+				removeNickName(player);
 				sender.sendMessage(nickNameDisabled);
 			} else {
 				setNickName(player, args[1]);
@@ -65,12 +65,40 @@ public class Main extends JavaPlugin {
 		}
 	}
 
+	public void removeNickName(Player player) {
+		nickNamesData.getNickNames().set(player.getUniqueId().toString(), null);
+		nickNamesData.saveNickNames();
+	}
+
 	public void setNickName(Player player, String name) {
-		nickNamesData.getNickNames().set(player.getUniqueId().toString() + ".nickname", name);
+		name = changeColorCodes(name);
+
 		nickNamesData.getNickNames().set(player.getUniqueId() + ".username", player.getName());
+		nickNamesData.getNickNames().set(player.getUniqueId().toString() + ".nickname", name);
 		nickNamesData.saveNickNames();
 		player.setDisplayName(name);
 		player.setPlayerListName(name);
+	}
+
+	private String changeColorCodes(String name) {
+		name = name.replace("&4", ChatColor.DARK_RED.toString());
+		name = name.replace("&c", ChatColor.RED.toString());
+		name = name.replace("&6", ChatColor.GOLD.toString());
+		name = name.replace("&e", ChatColor.YELLOW.toString());
+		name = name.replace("&2", ChatColor.DARK_GREEN.toString());
+		name = name.replace("&a", ChatColor.GREEN.toString());
+		name = name.replace("&b", ChatColor.AQUA.toString());
+		name = name.replace("&3", ChatColor.DARK_AQUA.toString());
+		name = name.replace("&1", ChatColor.DARK_BLUE.toString());
+		name = name.replace("&9", ChatColor.BLUE.toString());
+		name = name.replace("&d", ChatColor.LIGHT_PURPLE.toString());
+		name = name.replace("&5", ChatColor.DARK_PURPLE.toString());
+		name = name.replace("&f", ChatColor.WHITE.toString());
+		name = name.replace("&7", ChatColor.GRAY.toString());
+		name = name.replace("&8", ChatColor.DARK_GRAY.toString());
+		name = name.replace("&0", ChatColor.BLACK.toString());
+
+		return name;
 	}
 
 	@Override
