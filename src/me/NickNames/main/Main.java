@@ -132,7 +132,6 @@ public class Main extends JavaPlugin {
 	private void nickCommand(CommandSender sender, String[] args) {
 		boolean allowDuplicated = Boolean
 				.parseBoolean(getConfig().getString("allow-duplicate-nicknames").toLowerCase());
-		sender.sendMessage(allowDuplicated + "");
 
 		if (args.length == 0) {
 			sender.sendMessage(invalidNumOfArgsMessage);
