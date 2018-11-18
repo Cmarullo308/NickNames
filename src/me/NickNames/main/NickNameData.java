@@ -45,7 +45,6 @@ public class NickNameData {
 	public void saveNickNames() {
 		try {
 			nicknames.save(nicknamesFile);
-			main.getLogger().info("Saved");
 		} catch (IOException e) {
 			main.getServer().getLogger().info(ChatColor.RED + "Could not save nicknames.yml file");
 		}

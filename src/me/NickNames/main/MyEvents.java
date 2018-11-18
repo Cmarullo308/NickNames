@@ -29,12 +29,16 @@ public class MyEvents implements Listener {
 		String nickName = main.nickNamesData.getNickNames().getString(event.getPlayer().getUniqueId() + ".nickname");
 		if (nickName != null) {
 			event.setJoinMessage(nickName + ChatColor.YELLOW + " has joined the server");
+			main.nickNamesData.getNickNames().set(event.getPlayer().getUniqueId() + ".username",
+					event.getPlayer().getName());
 		}
 	}
 
 	@EventHandler
 	public void onPostLogin(PlayerLoginEvent event) {
-		main.setNickName(event.getPlayer(),
-				main.nickNamesData.getNickNames().getString(event.getPlayer().getUniqueId() + ".nickname"));
+		if (main.checkIfPlayerHasNickName(event.getPlayer().getUniqueId().toString())) {
+			main.setNickName(event.getPlayer(),
+					main.nickNamesData.getNickNames().getString(event.getPlayer().getUniqueId() + ".nickname"));
+		}
 	}
 }

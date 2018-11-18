@@ -1,5 +1,7 @@
 package me.NickNames.main;
 
+import java.util.UUID;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,7 +23,10 @@ public class Main extends JavaPlugin {
 			+ "&b : " + "AQUA\n" + ChatColor.DARK_AQUA + "&3 : " + "DARK AQUA\n" + ChatColor.DARK_BLUE + "&1 : "
 			+ "DARK BLUE\n" + ChatColor.BLUE + "&9 : " + "BLUE\n" + ChatColor.LIGHT_PURPLE + "&d : " + "LIGHT PURPLE\n"
 			+ ChatColor.DARK_PURPLE + "&5 : " + "DARK PURPLE\n" + ChatColor.WHITE + "&f : " + "WHITE\n" + ChatColor.GRAY
-			+ "&7 : " + "GRAY\n" + ChatColor.DARK_GRAY + "&8 : " + "DARK GRAY\n" + ChatColor.BLACK + "&0 : " + "BLACK";
+			+ "&7 : " + "GRAY\n" + ChatColor.DARK_GRAY + "&8 : " + "DARK GRAY\n" + ChatColor.BLACK + "&0 : " + "BLACK\n"
+			+ ChatColor.WHITE + ChatColor.BOLD + "&l : " + "BOLD\n" + ChatColor.RESET + ChatColor.STRIKETHROUGH
+			+ "&m : " + "STRIKETHROUGH\n" + ChatColor.RESET + ChatColor.ITALIC + "&o : " + "ITALIC\n" + ChatColor.RESET
+			+ ChatColor.UNDERLINE + "&n : " + "UNDERLINE\n";
 	// ---------
 
 	public NickNameData nickNamesData;
@@ -36,12 +41,52 @@ public class Main extends JavaPlugin {
 			lookup(sender, args);
 		} else if (subCommand.equals("colorcodes")) {
 			sender.sendMessage(colorCodes);
+		} else if (subCommand.equals("test")) {
+			testCommand(sender, args);
+		} else if (subCommand.equals("allowduplicatenicknames")) {
+			setAllowDuplicateNickNames(sender, args);
+		} else if (subCommand.equals("reload")) {
+			reload(sender, args);
 		} else {
 			nickCommand(sender, args);
 		}
 
 		return true;
 
+	}
+
+	private void reload(CommandSender sender, String[] args) {
+		nickNamesData.setup();
+
+		Object[] keys = nickNamesData.getNickNames().getKeys(false).toArray();
+		Player player;
+
+		for (int i = 0; i < keys.length; i++) {
+			player = getServer().getPlayer(UUID.fromString(keys[i].toString()));
+			getLogger().info(player.getUniqueId() + " : ");
+
+			setNickName(player, nickNamesData.getNickNames().getString(keys[i] + ".nickname"));
+		}
+
+		nickNamesData.saveNickNames();
+	}
+
+	private void setAllowDuplicateNickNames(CommandSender sender, String[] args) {
+		String arg = args[1].toLowerCase();
+
+		if (!arg.equals("false") && !arg.equals("true")) {
+			sender.sendMessage(ChatColor.RED + "Invalid arguement, must be True or False");
+			return;
+		}
+
+		getConfig().set("allow-duplicate-nicknames", arg);
+		saveConfig();
+
+		sender.sendMessage(ChatColor.GRAY + "allow-duplicate-nicknames set to " + arg);
+	}
+
+	private void testCommand(CommandSender sender, String[] args) {
+		sender.sendMessage(checkIfNicknameExists(args[1]) + "");
 	}
 
 	private void lookup(CommandSender sender, String[] args) {
@@ -77,13 +122,18 @@ public class Main extends JavaPlugin {
 		message += "/nick <player name> <nickname>: Sets another players nickname\n";
 		message += "/nick <player name> off: Removes another players nickname\n";
 		message += "/nick lookup <nickname>: Looks up a username from a nickname\n";
-		message += "/nick colorcodes: Shows the color codes";
+		message += "/nick colorcodes: Shows the color codes\n";
+		message += "/nick allowDuplicateNicknames <true : false>: Set if duplicate nicknames are allowed";
 		// finish
 
 		sender.sendMessage(message);
 	}
 
 	private void nickCommand(CommandSender sender, String[] args) {
+		boolean allowDuplicated = Boolean
+				.parseBoolean(getConfig().getString("allow-duplicate-nicknames").toLowerCase());
+		sender.sendMessage(allowDuplicated + "");
+
 		if (args.length == 0) {
 			sender.sendMessage(invalidNumOfArgsMessage);
 			return;
@@ -106,6 +156,10 @@ public class Main extends JavaPlugin {
 				removeNickName(player);
 				sender.sendMessage(nickNameDisabled);
 			} else {
+				if (!allowDuplicated && checkIfNicknameExists(args[0])) {
+					sender.sendMessage("Nickname already exists");
+					return;
+				}
 				setNickName(player, args[0]);
 				sender.sendMessage(nickNameSet);
 			}
@@ -127,6 +181,10 @@ public class Main extends JavaPlugin {
 				removeNickName(player);
 				sender.sendMessage(nickNameDisabled);
 			} else {
+				if (!allowDuplicated && checkIfNicknameExists(args[1])) {
+					sender.sendMessage("Nickname already exists");
+					return;
+				}
 				setNickName(player, args[1]);
 				sender.sendMessage(nickNameSet);
 			}
@@ -166,6 +224,11 @@ public class Main extends JavaPlugin {
 			name = name.replace("&7", ChatColor.GRAY.toString());
 			name = name.replace("&8", ChatColor.DARK_GRAY.toString());
 			name = name.replace("&0", ChatColor.BLACK.toString());
+			name = name.replace("&l", ChatColor.BOLD.toString());
+			name = name.replace("&m", ChatColor.STRIKETHROUGH.toString());
+			name = name.replace("&n", ChatColor.UNDERLINE.toString());
+			name = name.replace("&o", ChatColor.ITALIC.toString());
+			name = name.replace("&k", ChatColor.MAGIC.toString());
 		}
 
 		return name;
@@ -174,14 +237,42 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		super.onDisable();
+		nickNamesData.saveNickNames();
 	}
 
 	@Override
 	public void onEnable() {
+		getConfig().options().copyDefaults(true);
+		saveConfig();
 		loadNickNamesData();
 
 		this.getServer().getPluginManager().registerEvents(new MyEvents(this), this);
 		super.onEnable();
+	}
+
+	public boolean checkIfNicknameExists(String nickName) {
+		Object[] keys = nickNamesData.getNickNames().getKeys(false).toArray();
+
+		for (int i = 0; i < keys.length; i++) {
+			getLogger().info(keys[i] + "");
+			if (nickNamesData.getNickNames().getString(keys[i] + ".nickname").equals(nickName)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public boolean checkIfPlayerHasNickName(String UUID) {
+		Object[] userIDS = nickNamesData.getNickNames().getKeys(false).toArray();
+
+		for (int i = 0; i < userIDS.length; i++) {
+			if (userIDS[i].equals(UUID)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private void loadNickNamesData() {
