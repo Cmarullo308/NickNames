@@ -1,0 +1,1 @@
+config for multiple of same nickname

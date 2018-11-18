@@ -1,0 +1,5 @@
+nicknames.set
+nicknames.set.other
+nickname.help
+nicknames.help.colorcodes
+nicknames.lookup
