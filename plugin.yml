@@ -1,8 +1,8 @@
 main: me.NickNames.main.Main
 name: NickNames
 author: CJM
-version: 1.0
-api-version: 1.13
+version: 1.1
+api-version: 1.14
 description: Set player nicknames
 commands:
    Nick:

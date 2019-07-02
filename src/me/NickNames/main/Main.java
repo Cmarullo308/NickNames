@@ -152,7 +152,7 @@ public class Main extends JavaPlugin {
 			Player player = (Player) sender;
 
 			if (args[0].equalsIgnoreCase("off")) {
-				removeNickName(player);
+				removeNickName(player, args[0]);
 				sender.sendMessage(nickNameDisabled);
 			} else {
 				if (!allowDuplicated && checkIfNicknameExists(args[0])) {
@@ -177,7 +177,7 @@ public class Main extends JavaPlugin {
 			}
 
 			if (args[1].equals("off")) {
-				removeNickName(player);
+				removeNickName(player, args[0]);
 				sender.sendMessage(nickNameDisabled);
 			} else {
 				if (!allowDuplicated && checkIfNicknameExists(args[1])) {
@@ -190,13 +190,16 @@ public class Main extends JavaPlugin {
 		}
 	}
 
-	public void removeNickName(Player player) {
+	public void removeNickName(Player player, String realName) {
 		nickNamesData.getNickNames().set(player.getUniqueId().toString(), null);
 		nickNamesData.saveNickNames();
+		Player targetPlayer = getServer().getPlayer(realName);
+		player.setDisplayName(targetPlayer.getName());
+		player.setPlayerListName(targetPlayer.getName());
 	}
 
 	public void setNickName(Player player, String name) {
-		name = changeColorCodes(name);
+		name = changeColorCodes(name + ChatColor.WHITE.toString());
 
 		nickNamesData.getNickNames().set(player.getUniqueId() + ".username", player.getName());
 		nickNamesData.getNickNames().set(player.getUniqueId().toString() + ".nickname", name);
