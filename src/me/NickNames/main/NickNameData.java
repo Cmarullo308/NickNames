@@ -32,7 +32,6 @@ public class NickNameData {
 			} catch (IOException e) {
 				main.getServer().getLogger().info(ChatColor.RED + "Could not create nicknames.yml file");
 			}
-
 		}
 
 		nicknames = YamlConfiguration.loadConfiguration(nicknamesFile);

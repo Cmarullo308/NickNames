@@ -63,7 +63,7 @@ public class Main extends JavaPlugin {
 
 		for (int i = 0; i < keys.length; i++) {
 			player = getServer().getPlayer(UUID.fromString(keys[i].toString()));
-			getLogger().info(player.getUniqueId() + " : ");
+			// getLogger().info(player.getUniqueId() + " : ");
 
 			setNickName(player, nickNamesData.getNickNames().getString(keys[i] + ".nickname"));
 		}
@@ -152,14 +152,15 @@ public class Main extends JavaPlugin {
 			Player player = (Player) sender;
 
 			if (args[0].equalsIgnoreCase("off")) {
-				removeNickName(player, args[0]);
+				removeNickName(player);
 				sender.sendMessage(nickNameDisabled);
 			} else {
 				if (!allowDuplicated && checkIfNicknameExists(args[0])) {
 					sender.sendMessage("Nickname already exists");
 					return;
 				}
-				setNickName(player, args[0]);
+//				setNickName(player, args[0]);
+				setNewNickname(player, args[0]);
 				sender.sendMessage(nickNameSet);
 			}
 		}
@@ -177,20 +178,33 @@ public class Main extends JavaPlugin {
 			}
 
 			if (args[1].equals("off")) {
-				removeNickName(player, args[0]);
+				removeOthersNickName(player, args[0]);
 				sender.sendMessage(nickNameDisabled);
 			} else {
 				if (!allowDuplicated && checkIfNicknameExists(args[1])) {
 					sender.sendMessage("Nickname already exists");
 					return;
 				}
-				setNickName(player, args[1]);
+				setNewNickname(player, args[1]);
+//				setNickName(player, args[1]);
 				sender.sendMessage(nickNameSet);
 			}
 		}
 	}
 
-	public void removeNickName(Player player, String realName) {
+	private void setNewNickname(Player player, String name) {
+		setNickName(player, name + ChatColor.WHITE);
+	}
+
+	public void removeNickName(Player player) {
+		nickNamesData.getNickNames().set(player.getUniqueId().toString(), null);
+		nickNamesData.saveNickNames();
+		Player targetPlayer = getServer().getPlayer(player.getName());
+		player.setDisplayName(targetPlayer.getName()); //-----
+		player.setPlayerListName(targetPlayer.getName());
+	}
+	
+	public void removeOthersNickName(Player player, String realName) {
 		nickNamesData.getNickNames().set(player.getUniqueId().toString(), null);
 		nickNamesData.saveNickNames();
 		Player targetPlayer = getServer().getPlayer(realName);
@@ -199,7 +213,7 @@ public class Main extends JavaPlugin {
 	}
 
 	public void setNickName(Player player, String name) {
-		name = changeColorCodes(name + ChatColor.WHITE.toString());
+		name = changeColorCodes(name);
 
 		nickNamesData.getNickNames().set(player.getUniqueId() + ".username", player.getName());
 		nickNamesData.getNickNames().set(player.getUniqueId().toString() + ".nickname", name);
@@ -280,5 +294,9 @@ public class Main extends JavaPlugin {
 	private void loadNickNamesData() {
 		nickNamesData = new NickNameData(this);
 		nickNamesData.setup();
+	}
+	
+	public void consoleMessage(String message) {
+		getLogger().info(message);
 	}
 }
