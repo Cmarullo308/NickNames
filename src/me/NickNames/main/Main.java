@@ -1,7 +1,10 @@
 package me.NickNames.main;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -53,6 +56,75 @@ public class Main extends JavaPlugin {
 
 		return true;
 
+	}
+
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		if (command.getName().equalsIgnoreCase("nick")) {
+			ArrayList<String> choices = new ArrayList<String>();
+			if (args.length == 1) {
+				choices.add("<Nickname>");
+
+				for (Player player : Bukkit.getOnlinePlayers()) {
+					if (player.getName().toLowerCase().startsWith(args[0].toLowerCase())) {
+						choices.add(player.getName());
+					}
+				}
+
+				if ("help".startsWith(args[0].toLowerCase())) {
+					choices.add("help");
+				}
+
+				if ("off".startsWith(args[0].toLowerCase())) {
+					choices.add("off");
+				}
+
+				if ("lookup".startsWith(args[0].toLowerCase())) {
+					choices.add("lookup");
+				}
+
+				if ("colorcodes".startsWith(args[0].toLowerCase())) {
+					choices.add("colorcodes");
+				}
+
+				if ("allowduplicatenicknames".startsWith(args[0].toLowerCase())) {
+					choices.add("allowduplicatenicknames");
+				}
+
+				return choices;
+			} else if (args.length == 2) {
+				if (args[0].equalsIgnoreCase("lookup")) {
+					choices.add("<Nickname>");
+					return choices;
+				}
+
+				if (args[0].equalsIgnoreCase("allowduplicatenicknames")) {
+					if ("true".startsWith(args[1].toLowerCase())) {
+						choices.add("true");
+					}
+
+					if ("false".startsWith(args[1].toLowerCase())) {
+						choices.add("false");
+					}
+
+					return choices;
+				}
+
+				for (Player player : Bukkit.getOnlinePlayers()) {
+					if (args[0].equalsIgnoreCase(player.getName())) {
+						choices.add("<NickName>");
+
+						if ("off".startsWith(args[1].toLowerCase())) {
+							choices.add("off");
+						}
+
+						return choices;
+					}
+				}
+
+			}
+		}
+
+		return null;
 	}
 
 	private void reload(CommandSender sender, String[] args) {
@@ -118,7 +190,7 @@ public class Main extends JavaPlugin {
 
 		message += "Commands:\n";
 		message += "/nick <nickname>: Sets your own nickname\n";
-		message += "/nick <nickname> off: Removes your nickname\n";
+		message += "/nick off: Removes your nickname\n";
 		message += "/nick <player name> <nickname>: Sets another players nickname\n";
 		message += "/nick <player name> off: Removes another players nickname\n";
 		message += "/nick lookup <nickname>: Looks up a username from a nickname\n";
@@ -200,10 +272,10 @@ public class Main extends JavaPlugin {
 		nickNamesData.getNickNames().set(player.getUniqueId().toString(), null);
 		nickNamesData.saveNickNames();
 		Player targetPlayer = getServer().getPlayer(player.getName());
-		player.setDisplayName(targetPlayer.getName()); //-----
+		player.setDisplayName(targetPlayer.getName()); // -----
 		player.setPlayerListName(targetPlayer.getName());
 	}
-	
+
 	public void removeOthersNickName(Player player, String realName) {
 		nickNamesData.getNickNames().set(player.getUniqueId().toString(), null);
 		nickNamesData.saveNickNames();
@@ -295,7 +367,7 @@ public class Main extends JavaPlugin {
 		nickNamesData = new NickNameData(this);
 		nickNamesData.setup();
 	}
-	
+
 	public void consoleMessage(String message) {
 		getLogger().info(message);
 	}
