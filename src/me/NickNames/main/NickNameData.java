@@ -3,11 +3,9 @@ package me.NickNames.main;
 import java.io.File;
 import java.io.IOException;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-
-import me.NickNames.main.Main;
-import net.md_5.bungee.api.ChatColor;
 
 public class NickNameData {
 	private Main main;

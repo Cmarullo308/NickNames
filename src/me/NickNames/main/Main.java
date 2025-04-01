@@ -5,13 +5,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import me.NickNames.main.MyEvents;
-import net.md_5.bungee.api.ChatColor;
 
 public class Main extends JavaPlugin {
 	// Messages
