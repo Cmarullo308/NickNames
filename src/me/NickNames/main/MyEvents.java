@@ -1,10 +1,10 @@
 package me.NickNames.main;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class MyEvents implements Listener {
@@ -17,7 +17,6 @@ public class MyEvents implements Listener {
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
 		String nickName = main.nickNamesData.getNickNames().getString(event.getPlayer().getUniqueId() + ".nickname");
-
 		if (nickName != null) {
 			event.setQuitMessage(nickName + ChatColor.YELLOW + " has left the game");
 		}
@@ -30,14 +29,11 @@ public class MyEvents implements Listener {
 			event.setJoinMessage(nickName + ChatColor.YELLOW + " has joined the server");
 			main.nickNamesData.getNickNames().set(event.getPlayer().getUniqueId() + ".username",
 					event.getPlayer().getName());
-		}
-	}
 
-	@EventHandler
-	public void onPostLogin(PlayerLoginEvent event) {
-		if (main.checkIfPlayerHasNickName(event.getPlayer().getUniqueId().toString())) {
-			main.setNickName(event.getPlayer(),
-					main.nickNamesData.getNickNames().getString(event.getPlayer().getUniqueId() + ".nickname"));
+			// Delay setting nickname
+			Bukkit.getScheduler().runTaskLater(main, () -> {
+				main.setNickName(event.getPlayer(), nickName);
+			}, 2L);
 		}
 	}
 }
